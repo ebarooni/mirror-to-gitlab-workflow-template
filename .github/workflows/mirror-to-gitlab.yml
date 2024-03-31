@@ -1,0 +1,37 @@
+# Checklist for integrating this workflow into a new repository (skip #1 if PAT is already available):
+# 1. Generate a GitLab PAT with at least write_repository scope (GitLab -> User settings -> Access Tokens)
+# 2. Add the PAT in GitHub repository as repository secret (Settings -> Secrets and Variables -> Actions)
+# 3. Name the repository secret GITLAB_MIRROR_TOKEN
+# 4. Control git config name and email in yml file (line 27-28)
+# 5. Replace GitLab repository URL (HTTPS) in yml file (line 35)
+name: Mirror to GitLab
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        run: |
+          REPO_URL=$(echo "https://github.com/${GITHUB_REPOSITORY}" | sed "s|://|://x-access-token:${GITHUB_TOKEN}@|g")
+          git clone --bare $REPO_URL
+
+      - name: Set git config
+        run: |
+          cd $(basename ${GITHUB_REPOSITORY}).git
+          git config user.name "Ehsan Barooni"
+          git config user.email "66495214+ebarooni.noreply@barooni.dev"
+
+      - name: Mirror to GitLab
+        env:
+          GITLAB_MIRROR_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+        run: |
+          cd $(basename ${GITHUB_REPOSITORY}).git
+          GITLAB_REPO="https://gitlab.com/ebarooni/mirror-to-gitlab-workflow-template.git"
+          git remote add gitlab https://oauth2:${GITLAB_MIRROR_TOKEN}@${GITLAB_REPO#https://}
+          git push --mirror gitlab
