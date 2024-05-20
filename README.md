@@ -27,8 +27,11 @@ Before proceeding, ensure you have the following:
 ### 4. Create GitLab Host Repository
 - Create a host repository in GitLab, ideally with the same name as your GitHub repository.
 
-### 5. Update GitLab Repository URL
-- Replace the GitLab repository URL (HTTPS) in your workflow YML file (line 36) with the URL of your GitLab host repository.
+### 5. Add GitLab Host Repository URL as a Repository Secret
+- Go to your GitHub repository's **Settings**.
+- Navigate to **Secrets and Variables** under **Actions**.
+- Add the host repository URL as a repository secret.
+  - Name the secret `GITLAB_REPO_URL` (example value -> "https&#58;//gitlab.com/\<USERNAME>/\<PROJECT>.git").
 
 ## Additional Notes
 - Ensure proper permissions and access controls are set up on both GitHub and GitLab repositories.
